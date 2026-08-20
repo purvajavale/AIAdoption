@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Adoption Dashboard — Redesign Mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --canvas:#F5F6F8;
+  --surface:#FFFFFF;
+  --border:#E3E6EC;
+  --text:#1C2333;
+  --text-soft:#667085;
+  --brand:#1F4D3A;
+  --brand-soft:#E8F0EC;
+  --strider:#2E6D9E;
+  --copilot:#6552C6;
+  --claude:#C1602E;
+  --ghcopilot:#4B5A6B;
+  --windsurf:#1B8FA6;
+  --up:#2F9E5C;
+  --amber:#C98A1F;
+  --radius:10px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%; margin:0;}
+body{background:var(--canvas); color:var(--text); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; font-size:13.5px;}
+.shell{display:flex; height:100vh; overflow:hidden;}
+
+/* RAIL */
+.rail{width:212px; background:var(--brand); color:#EAF2EE; flex-shrink:0; display:flex; flex-direction:column; padding:18px 0; height:100vh; overflow-y:auto;}
+.rail-brand{display:flex; align-items:center; gap:10px; padding:0 18px 18px 18px; border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:12px;}
+.rail-brand .mark{width:28px; height:28px; border-radius:7px; background:#EAF2EE; color:var(--brand); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0;}
+.rail-brand .label{font-weight:700; font-size:14px; letter-spacing:.2px;}
+.rail-brand .sub{font-size:10px; color:#B9D3C6; letter-spacing:.4px; text-transform:uppercase;}
+.rail-nav{display:flex; flex-direction:column; gap:1px; padding:0 9px;}
+.rail-item{display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:7px; font-size:13px; font-weight:500; color:#CFE2D8; cursor:pointer; user-select:none; border-left:2px solid transparent;}
+.rail-item .dot{width:7px; height:7px; border-radius:50%; background:currentColor; opacity:.55; flex-shrink:0;}
+.rail-item.active{background:rgba(255,255,255,.13); color:#fff; font-weight:600; border-left:2px solid #fff;}
+.rail-item.active .dot{opacity:1;}
+.rail-item:not(.active):hover{background:rgba(255,255,255,.07);}
+.rail-section-label{font-size:9.5px; text-transform:uppercase; letter-spacing:.7px; color:#8FB3A2; padding:14px 20px 5px;}
+.rail-foot{margin-top:auto; padding:12px 18px 2px; font-size:10.5px; color:#9BC0AE; border-top:1px solid rgba(255,255,255,.12);}
+.c-strider{color:var(--strider);} .c-copilot{color:var(--copilot);} .c-claude{color:var(--claude);}
+.c-gh{color:var(--ghcopilot);} .c-windsurf{color:var(--windsurf);}
+
+/* MAIN */
+.main{flex:1; min-width:0; display:flex; flex-direction:column; height:100vh;}
+.topbar{background:var(--surface); border-bottom:1px solid var(--border); padding:12px 26px; display:flex; align-items:center; justify-content:space-between; gap:20px; flex-shrink:0;}
+.crumb{font-size:12px; color:var(--text-soft);}
+.crumb b{color:var(--text); font-weight:600;}
+.topbar-right{display:flex; align-items:center; gap:9px;}
+.pill{display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; padding:6px 11px; border-radius:20px; background:var(--brand-soft); color:var(--brand);}
+.pill .ind{width:6px; height:6px; border-radius:50%; background:var(--up);}
+.filter-btn{font-size:12px; font-weight:500; color:var(--text); background:var(--surface); border:1px solid var(--border); padding:6px 13px; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px;}
+
+.content{flex:1; overflow-y:auto; padding:22px 26px 40px; max-width:1440px;}
+h1.page-title{font-size:19px; font-weight:700; margin:0 0 2px; letter-spacing:-.2px; display:flex; align-items:center; gap:10px;}
+.page-sub{font-size:12.5px; color:var(--text-soft); margin:0 0 16px;}
+
+/* FILTER TOOLBAR */
+.filter-toolbar{display:flex; align-items:stretch; flex-wrap:wrap; background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:2px 4px; margin-bottom:16px;}
+.filter-item{display:flex; flex-direction:column; justify-content:center; padding:7px 16px; border-right:1px solid var(--border); min-width:92px;}
+.filter-item .fl-label{font-size:8.5px; text-transform:uppercase; letter-spacing:.5px; color:var(--text-soft); font-weight:700;}
+.filter-item .fl-value{font-size:12px; font-weight:600; margin-top:2px; display:flex; align-items:center; gap:5px;}
+.filter-item .fl-value::after{content:"▾"; font-size:8px; color:var(--text-soft); opacity:.7;}
+.time-pill{margin-left:auto; align-self:center; background:var(--brand-soft); color:var(--brand); border-radius:7px; padding:7px 14px; font-weight:700; font-size:11.5px; display:flex; align-items:center; gap:7px; white-space:nowrap;}
+.tp-dot{width:6px; height:6px; border-radius:50%; background:var(--brand);}
+
+/* SUBTABS */
+.subtabs-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;}
+.subtabs{display:flex; gap:3px; background:#EEF0F3; padding:3px; border-radius:8px; width:fit-content;}
+.subtab{padding:6px 13px; border-radius:5px; font-size:11.5px; font-weight:600; color:var(--text-soft); cursor:default;}
+.subtab.active{background:#fff; color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08);}
+.segmented{display:flex; gap:3px; background:#EEF0F3; padding:3px; border-radius:8px; width:fit-content;}
+.seg{padding:6px 13px; border-radius:5px; font-size:11.5px; font-weight:600; color:var(--text-soft); cursor:default;}
+.seg.active{background:var(--brand); color:#fff;}
+
+/* KPI */
+.kpi-row{display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:18px;}
+.kpi-row.k4{grid-template-columns:repeat(4,1fr);}
+.kpi-row.n3{grid-template-columns:repeat(3,1fr); max-width:600px;}
+.kpi-row.n2{grid-template-columns:repeat(2,1fr); max-width:420px;}
+.kpi{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:13px 15px; position:relative; overflow:hidden; min-height:78px;}
+.kpi::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent,var(--brand));}
+.kpi .label{font-size:10px; color:var(--text-soft); font-weight:600; text-transform:uppercase; letter-spacing:.3px;}
+.kpi .value{font-family:'IBM Plex Mono',monospace; font-size:21px; font-weight:600; margin-top:5px; letter-spacing:-.4px; line-height:1.1;}
+.kpi .delta{font-size:10.5px; margin-top:4px; font-weight:600;}
+.kpi .delta.up{color:var(--up);} .kpi .delta.flat{color:var(--text-soft);}
+
+.spectrum-card{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:17px 20px 15px; margin-bottom:16px;}
+.spectrum-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px;}
+.spectrum-head h3{font-size:13.5px; margin:0; font-weight:700;}
+.spectrum-head span{font-size:11px; color:var(--text-soft);}
+.spec-row{display:flex; align-items:center; gap:14px; margin-bottom:9px;}
+.spec-row:last-child{margin-bottom:0;}
+.spec-label{width:112px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:7px; flex-shrink:0;}
+.spec-label .sw{width:9px; height:9px; border-radius:2px; flex-shrink:0;}
+.spec-track{flex:1; background:#EEF0F3; border-radius:6px; height:18px; position:relative; overflow:hidden;}
+.spec-fill{height:100%; border-radius:6px 0 0 6px; display:flex; align-items:center; justify-content:flex-end; padding-right:8px;}
+.spec-fill span{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#fff; font-weight:600;}
+.spec-users{width:76px; text-align:right; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-soft); flex-shrink:0;}
+
+.grid-2{display:grid; grid-template-columns:1.55fr 1fr; gap:14px; margin-bottom:14px; align-items:stretch;}
+.grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px; align-items:stretch;}
+.grid-eq2{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; align-items:stretch;}
+.card{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:16px 18px; display:flex; flex-direction:column;}
+.card h3{font-size:12.5px; margin:0 0 3px; font-weight:700;}
+.card .cap{font-size:11px; color:var(--text-soft); margin:0 0 12px;}
+
+table{width:100%; border-collapse:collapse; font-size:12px;}
+th{text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.3px; color:var(--text-soft); font-weight:600; padding:0 9px 7px; border-bottom:1px solid var(--border);}
+th.num, td.num{text-align:right; font-family:'IBM Plex Mono',monospace;}
+td{padding:8px 9px; border-bottom:1px solid #F0F1F4; color:var(--text);}
+tbody tr:hover td, tr:not(.total):hover td{background:#FAFBFC;}
+tr.total td{border-top:2px solid var(--text); border-bottom:none; font-weight:700; background:#FAFBFC;}
+.bar-mini{display:inline-block; height:6px; border-radius:3px; vertical-align:middle;}
+.name-cell{display:flex; align-items:center; gap:8px;}
+.avatar{width:21px; height:21px; border-radius:50%; background:var(--brand-soft); color:var(--brand); font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+
+.donut-wrap{display:flex; align-items:center; gap:18px;}
+.legend-list{display:flex; flex-direction:column; gap:8px; font-size:11.5px;}
+.legend-item{display:flex; align-items:center; gap:8px;}
+.legend-item .sw{width:9px; height:9px; border-radius:2px;}
+.legend-item .val{margin-left:auto; font-family:'IBM Plex Mono',monospace; font-weight:600; color:var(--text-soft);}
+
+.trend-svg{width:100%; height:100px;}
+.chart-legend{display:flex; gap:14px; font-size:10.5px; color:var(--text-soft); margin-top:6px;}
+.chart-legend span{display:flex; align-items:center; gap:5px;}
+.chart-legend .ln{width:12px; height:2.5px; border-radius:2px; display:inline-block;}
+
+.vbar-wrap{display:flex; align-items:flex-end; gap:12px; height:110px; padding-top:8px;}
+.vbar-group{display:flex; flex-direction:column; align-items:center; gap:6px; flex:1;}
+.vbar-cols{display:flex; gap:4px; align-items:flex-end; height:92px; width:100%; justify-content:center;}
+.vbar{width:14px; border-radius:3px 3px 0 0;}
+.vbar-x{font-size:9.5px; color:var(--text-soft); text-align:center; line-height:1.3;}
+
+.section-divider{height:1px; background:var(--border); margin:22px 0 16px;}
+.subhead{font-size:14px; font-weight:700; margin:0 0 12px;}
+.tool-badge{width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:13px; flex-shrink:0;}
+.footnote{font-size:10.5px; color:var(--text-soft); margin-top:6px;}
+
+.page{display:none;}
+.page.active{display:block;}
+
+.badge-band{font-size:10px; font-weight:700; padding:3px 8px; border-radius:5px; display:inline-block;}
+.band-power{background:#E8F0EC; color:var(--brand);}
+.band-moderate{background:#FBF1DE; color:var(--amber);}
+.band-casual{background:#F1F2F5; color:var(--text-soft);}
+
+.mini-list{display:flex; flex-direction:column; gap:0;}
+.mini-list .row{display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #F0F1F4; font-size:12px;}
+.mini-list .row:last-child{border-bottom:none; font-weight:700; padding-top:9px; border-top:1px solid var(--text);}
+.mini-list .row .v{font-family:'IBM Plex Mono',monospace; color:var(--text-soft); font-weight:600;}
+
+.stat-row{display:grid; gap:12px; margin-bottom:16px;}
+.stat-row.c2{grid-template-columns:repeat(2,1fr);}
+.stat-row.c3{grid-template-columns:repeat(3,1fr);}
+.stat-row.c6{grid-template-columns:repeat(6,1fr);}
+.stat-card{background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:12px 15px;}
+.stat-card .label{font-size:10px; color:var(--text-soft); font-weight:600; text-transform:uppercase; letter-spacing:.3px;}
+.stat-card .value{font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:600; margin-top:4px; color:var(--accent2,var(--text));}
+.kpi-row-label{font-size:10.5px; font-weight:700; color:var(--text-soft); text-transform:uppercase; letter-spacing:.4px; margin:0 0 7px;}
+
+/* SINGLE-LINE KPI STRIP */
+.kpi-strip{display:flex; flex-wrap:nowrap; gap:9px; margin-bottom:16px; overflow-x:auto; padding-bottom:3px;}
+.kpi-strip::-webkit-scrollbar{height:4px;}
+.kpi-strip::-webkit-scrollbar-thumb{background:var(--border); border-radius:3px;}
+.kpi-strip .kpi{flex:1 1 0; min-width:108px; padding:11px 12px; min-height:70px;}
+.kpi-strip .kpi .label{font-size:9px; white-space:nowrap;}
+.kpi-strip .kpi .value{font-size:18px;}
+.kpi-strip .kpi .delta{font-size:9.5px; white-space:nowrap;}
+.kpi-strip .stat-card{flex:1 1 0; min-width:108px; padding:11px 12px;}
+.kpi-strip .stat-card .label{font-size:9px; white-space:nowrap;}
+.kpi-strip .stat-card .value{font-size:15.5px;}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="rail">
+    <div class="rail-brand">
+      <div class="mark">H</div>
+      <div>
+        <div class="label">AI Usage</div>
+        <div class="sub">Internal · RLS Active</div>
+      </div>
+    </div>
+    <div class="rail-nav">
+      <div class="rail-item active" data-page="summary" onclick="showPage('summary',this)"><span class="dot"></span> Summary</div>
+      <div class="rail-item" data-page="detailed" onclick="showPage('detailed',this)"><span class="dot"></span> Detailed View</div>
+    </div>
+    <div class="rail-section-label">By Platform</div>
+    <div class="rail-nav">
+      <div class="rail-item" data-page="strider" onclick="showPage('strider',this)"><span class="dot c-strider"></span> Strider</div>
+      <div class="rail-item" data-page="copilot" onclick="showPage('copilot',this)"><span class="dot c-copilot"></span> M365 Copilot</div>
+      <div class="rail-item" data-page="claude" onclick="showPage('claude',this)"><span class="dot c-claude"></span> Claude</div>
+      <div class="rail-item" data-page="github" onclick="showPage('github',this)"><span class="dot c-gh"></span> GitHub Copilot</div>
+      <div class="rail-item" data-page="windsurf" onclick="showPage('windsurf',this)"><span class="dot c-windsurf"></span> Windsurf</div>
+    </div>
+    <div class="rail-foot">Last refresh · Aug 17, 2026 5:00 PM</div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb">Summary <span style="opacity:.5">/</span> <b>All Orgs · Last 6 Months</b></div>
+      <div class="topbar-right">
+        <div class="pill"><span class="ind"></span> Row-Level Security Active</div>
+        <button class="filter-btn">⚙ Filters (0 applied)</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ============ SUMMARY ============ -->
+      <div class="page active" id="page-summary">
+        <h1 class="page-title">AI Adoption Dashboard</h1>
+        <p class="page-sub">Enterprise-wide usage across all licensed AI tools · Feb 19 – Aug 18, 2026</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Persona</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Worker Type</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 6 Months</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--brand)"><div class="label">Workforce #</div><div class="value">109.46K</div><div class="delta flat">Headcount</div></div>
+          <div class="kpi" style="--accent:var(--up)"><div class="label">Active AI Users #</div><div class="value">59.45K</div><div class="delta up">▲ 54.31%</div></div>
+          <div class="kpi" style="--accent:var(--amber)"><div class="label">Total Prompts #</div><div class="value">28,479.74K</div><div class="delta up">▲ 6.2%</div></div>
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Avg Interactions/User</div><div class="value">479.07</div><div class="delta flat">5 platforms</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Heavy AI User %ge</div><div class="value">42.32%</div><div class="delta up">▲ 100+ prompts</div></div>
+          <div class="kpi" style="--accent:var(--brand)"><div class="label">Adoption %ge</div><div class="value">54.31</div><div class="delta flat">All platforms</div></div>
+          <div class="stat-card" style="--accent2:var(--strider)"><div class="label">Strider P/M/C</div><div class="value">11.5K·3.7K·28.5K</div></div>
+          <div class="stat-card" style="--accent2:var(--copilot)"><div class="label">Copilot P/M/C</div><div class="value">10.1K·2.6K·23.8K</div></div>
+          <div class="stat-card" style="--accent2:var(--windsurf)"><div class="label">Windsurf P/M/C</div><div class="value">1.4K·307·1.4K</div></div>
+        </div>
+
+        <div class="spectrum-card">
+          <div class="spectrum-head"><h3>Adoption by Platform</h3><span>Active users as % of licensed workforce</span></div>
+          <div class="spec-row"><div class="spec-label"><span class="sw" style="background:var(--strider)"></span>Strider</div><div class="spec-track"><div class="spec-fill" style="width:40.7%; background:var(--strider)"><span>40.7%</span></div></div><div class="spec-users">44.5K users</div></div>
+          <div class="spec-row"><div class="spec-label"><span class="sw" style="background:var(--copilot)"></span>M365 Copilot</div><div class="spec-track"><div class="spec-fill" style="width:35.3%; background:var(--copilot)"><span>35.3%</span></div></div><div class="spec-users">38.6K users</div></div>
+          <div class="spec-row"><div class="spec-label"><span class="sw" style="background:var(--claude)"></span>Claude</div><div class="spec-track"><div class="spec-fill" style="width:56.6%; background:var(--claude)"><span>56.6%</span></div></div><div class="spec-users">2.5K users</div></div>
+          <div class="spec-row"><div class="spec-label"><span class="sw" style="background:var(--windsurf)"></span>Windsurf</div><div class="spec-track"><div class="spec-fill" style="width:82.4%; background:var(--windsurf)"><span>82.4%</span></div></div><div class="spec-users">3.3K users</div></div>
+          <div class="spec-row"><div class="spec-label"><span class="sw" style="background:var(--ghcopilot)"></span>GitHub Copilot</div><div class="spec-track"><div class="spec-fill" style="width:68.3%; background:var(--ghcopilot)"><span>68.3%</span></div></div><div class="spec-users">151 users</div></div>
+          <div class="footnote">Same 5 colors are used for these tools on every page in the report.</div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Adoption by Leader</h3>
+            <p class="cap">Sorted by active users · click a row to drill in</p>
+            <table>
+              <tr><th>Leader</th><th class="num">Workforce</th><th class="num">Active Users</th><th class="num">Adoption</th></tr>
+              <tr><td><div class="name-cell"><div class="avatar">LA</div>Leader A</div></td><td class="num">34,650</td><td class="num">12,366</td><td class="num">35.7%</td></tr>
+              <tr><td><div class="name-cell"><div class="avatar">LB</div>Leader B</div></td><td class="num">33,603</td><td class="num">20,173</td><td class="num">60.0%</td></tr>
+              <tr><td><div class="name-cell"><div class="avatar">LC</div>Leader C</div></td><td class="num">22,904</td><td class="num">11,385</td><td class="num">49.7%</td></tr>
+              <tr><td><div class="name-cell"><div class="avatar">LD</div>Leader D</div></td><td class="num">14,208</td><td class="num">12,530</td><td class="num">88.2%</td></tr>
+              <tr><td><div class="name-cell"><div class="avatar">LE</div>Leader E</div></td><td class="num">2,088</td><td class="num">1,506</td><td class="num">72.1%</td></tr>
+              <tr class="total"><td>Total</td><td class="num">109,367</td><td class="num">59,367</td><td class="num">54.3%</td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Users by Engagement</h3>
+            <p class="cap">Heavy / Medium / Light band</p>
+            <div class="donut-wrap">
+              <svg width="130" height="130" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#EEF0F3" stroke-width="6"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--claude)" stroke-width="6" stroke-dasharray="43.78 56.22" stroke-dashoffset="25" transform="rotate(-90 21 21)"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--strider)" stroke-width="6" stroke-dasharray="35.26 64.74" stroke-dashoffset="-18.78" transform="rotate(-90 21 21)"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--windsurf)" stroke-width="6" stroke-dasharray="20.97 79.03" stroke-dashoffset="-54.04" transform="rotate(-90 21 21)"></circle>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item"><span class="sw" style="background:var(--claude)"></span>Heavy (100+) <span class="val">43.8%</span></div>
+                <div class="legend-item"><span class="sw" style="background:var(--strider)"></span>Medium (20+) <span class="val">35.3%</span></div>
+                <div class="legend-item"><span class="sw" style="background:var(--windsurf)"></span>Light (1–10) <span class="val">21.0%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>AI Users by Platform</h3>
+            <p class="cap">Absolute active-user count, same color key as above</p>
+            <div class="vbar-wrap">
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:100%; background:var(--strider);"></div></div><div class="vbar-x">Strider<br>44.5K</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:87%; background:var(--copilot);"></div></div><div class="vbar-x">Copilot<br>38.6K</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:10%; background:var(--claude);"></div></div><div class="vbar-x">Claude<br>4.4K</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:9%; background:var(--windsurf);"></div></div><div class="vbar-x">Windsurf<br>3.8K</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:7%; background:var(--ghcopilot);"></div></div><div class="vbar-x">GitHub<br>3.1K</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Adoption by Job Family</h3>
+            <p class="cap">Top families by workforce size</p>
+            <div class="mini-list">
+              <div class="row"><span>Contingent Workers</span><span class="v">42.6%</span></div>
+              <div class="row"><span>Care Coordination</span><span class="v">74.6%</span></div>
+              <div class="row"><span>Utilization Mgmt Nursing</span><span class="v">63.2%</span></div>
+              <div class="row"><span>Individual Tele Sales</span><span class="v">72.5%</span></div>
+              <div class="row"><span>Total</span><span class="v">54.3%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ DETAILED VIEW ============ -->
+      <div class="page" id="page-detailed">
+        <h1 class="page-title">Detailed View</h1>
+        <p class="page-sub">Person-level usage across every platform · search or filter by leader</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Persona</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Worker Type</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 6 Months</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--brand)"><div class="label">Workforce #</div><div class="value">109.46K</div><div class="delta flat">Headcount</div></div>
+          <div class="kpi" style="--accent:var(--up)"><div class="label">Active AI Users #</div><div class="value">59.45K</div><div class="delta up">▲ across platforms</div></div>
+          <div class="kpi" style="--accent:var(--amber)"><div class="label">Adoption %ge</div><div class="value">54.31</div><div class="delta flat">Enterprise-wide</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Search</h3>
+            <p class="cap">Employee name</p>
+            <div style="border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-size:12.5px; color:var(--text-soft); margin-bottom:14px;">🔍 Search employee…</div>
+            <p class="cap">Direct leader name</p>
+            <div style="border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-size:12.5px; color:var(--text-soft);">🔍 Search leader…</div>
+          </div>
+          <div class="card">
+            <h3>AI Users by Tool</h3>
+            <p class="cap">Same 5-color mapping as Summary — no re-learning needed</p>
+            <div style="display:flex; align-items:flex-end; gap:16px; height:110px; padding-top:10px;">
+              <div style="flex:1; background:var(--strider); height:82%; border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1; background:var(--copilot); height:71%; border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1; background:var(--claude); height:8%; border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1; background:var(--windsurf); height:7%; border-radius:4px 4px 0 0;"></div>
+              <div style="flex:1; background:var(--ghcopilot); height:1%; border-radius:4px 4px 0 0;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Strider Adoption Trend</h3>
+            <p class="cap">% of workforce active, Apr – Aug 2026</p>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="var(--strider)" stroke-width="2.5" points="0,85 60,68 120,48 180,32 240,20 300,10" />
+              <polyline fill="url(#gDet)" stroke="none" points="0,85 60,68 120,48 180,32 240,20 300,10 300,100 0,100" />
+              <defs><linearGradient id="gDet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--strider)" stop-opacity="0.18"/><stop offset="100%" stop-color="var(--strider)" stop-opacity="0"/></linearGradient></defs>
+            </svg>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--strider)"></i>19.3% → 40.7%</span></div>
+          </div>
+          <div class="card">
+            <h3>AI Non-Adopters</h3>
+            <p class="cap">Licensed but inactive · sample</p>
+            <table>
+              <tr><th>Employee</th><th>Direct Leader</th></tr>
+              <tr><td>Employee X1</td><td>Leader K</td></tr>
+              <tr><td>Employee X2</td><td>Leader L</td></tr>
+              <tr><td>Employee X3</td><td>Leader M</td></tr>
+              <tr><td>Employee X4</td><td>Leader K</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Usage Level</h3>
+            <div class="mini-list">
+              <div class="row"><span>Heavy</span><span class="v">&gt;100 prompts</span></div>
+              <div class="row"><span>Medium</span><span class="v">&gt;20 prompts</span></div>
+              <div class="row"><span>Light</span><span class="v">1–10 prompts</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Usage Frequency</h3>
+            <div class="mini-list">
+              <div class="row"><span>Power Users</span><span class="v">Active 30+ days</span></div>
+              <div class="row"><span>Moderate Users</span><span class="v">Active 20-29 days</span></div>
+              <div class="row"><span>Casual Users</span><span class="v">Active 1-19 days</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Usage by Person</h3>
+          <p class="cap">Prompts per tool + usage level, one row per employee</p>
+          <table>
+            <tr><th>Employee</th><th class="num">Strider</th><th class="num">Copilot</th><th class="num">Claude</th><th>Level</th><th>Streak</th></tr>
+            <tr><td><div class="name-cell"><div class="avatar">E1</div>Employee 1</div></td><td class="num">17,834</td><td class="num">—</td><td class="num">—</td><td><span class="badge-band band-power">Power</span></td><td>30+ days</td></tr>
+            <tr><td><div class="name-cell"><div class="avatar">E2</div>Employee 2</div></td><td class="num">12,167</td><td class="num">2</td><td class="num">—</td><td><span class="badge-band band-power">Power</span></td><td>30+ days</td></tr>
+            <tr><td><div class="name-cell"><div class="avatar">E3</div>Employee 3</div></td><td class="num">9,228</td><td class="num">—</td><td class="num">—</td><td><span class="badge-band band-power">Power</span></td><td>30+ days</td></tr>
+            <tr><td><div class="name-cell"><div class="avatar">E4</div>Employee 4</div></td><td class="num">6,510</td><td class="num">871</td><td class="num">—</td><td><span class="badge-band band-moderate">Moderate</span></td><td>20-29 days</td></tr>
+            <tr><td><div class="name-cell"><div class="avatar">E5</div>Employee 5</div></td><td class="num">—</td><td class="num">14</td><td class="num">6</td><td><span class="badge-band band-casual">Casual</span></td><td>1-19 days</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ STRIDER ============ -->
+      <div class="page" id="page-strider">
+        <h1 class="page-title"><span class="tool-badge" style="background:var(--strider)">S</span>Strider Usage Report</h1>
+        <p class="page-sub">Internal assistant · Feb 19 – Aug 18, 2026</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Worker Type</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 6 Months</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Workforce #</div><div class="value">109.46K</div><div class="delta flat">Eligible</div></div>
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Active AI Users #</div><div class="value">44.542K</div><div class="delta up">▲ 40.69%</div></div>
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Adoption %ge</div><div class="value">40.69</div><div class="delta flat">Enterprise</div></div>
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Interactions #</div><div class="value">13,033K</div><div class="delta flat">6 months</div></div>
+          <div class="kpi" style="--accent:var(--strider)"><div class="label">Questions Asked #</div><div class="value">5,129.85K</div><div class="delta flat">6 months</div></div>
+          <div class="kpi" style="--accent:var(--up)"><div class="label">Adoption Change %ge</div><div class="value">+2.13</div><div class="delta up">▲ vs 30d</div></div>
+          <div class="stat-card" style="--accent2:var(--strider)"><div class="label">Power Users</div><div class="value">26.47%</div></div>
+          <div class="stat-card" style="--accent2:var(--amber)"><div class="label">Moderate Users</div><div class="value">8.62%</div></div>
+          <div class="stat-card" style="--accent2:var(--text-soft)"><div class="label">Casual Users</div><div class="value">65.67%</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Interactions by Active Users</h3>
+            <p class="cap">Daily active users vs total interactions</p>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="var(--strider)" stroke-width="2.2" points="0,55 30,50 60,60 90,20 120,58 150,45 180,52 210,25 240,48 270,38 300,15" />
+              <polyline fill="none" stroke="#C7DAE7" stroke-width="2.2" points="0,60 30,58 60,52 90,40 120,50 150,35 180,42 210,30 240,40 270,32 300,22" />
+            </svg>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--strider)"></i>Daily Active Users</span><span><i class="ln" style="background:#C7DAE7"></i>Total Interactions</span></div>
+          </div>
+          <div class="card">
+            <h3>Usage Frequency</h3>
+            <p class="cap">Share of active users</p>
+            <div class="legend-list" style="margin-top:6px;">
+              <div class="legend-item"><span class="sw" style="background:var(--strider)"></span>Power (30+ days) <span class="val">26.5%</span></div>
+              <div class="legend-item"><span class="sw" style="background:#79A6C4"></span>Moderate (20-29) <span class="val">8.6%</span></div>
+              <div class="legend-item"><span class="sw" style="background:#C7DAE7"></span>Casual (1-19) <span class="val">65.7%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Adoption % by Month</h3>
+            <p class="cap">Cumulative, Feb – Aug 2026</p>
+            <div class="vbar-wrap">
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:52%; background:var(--strider);"></div></div><div class="vbar-x">Feb<br>20.4%</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:68%; background:var(--strider);"></div></div><div class="vbar-x">Mar<br>26.9%</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:83%; background:var(--strider);"></div></div><div class="vbar-x">Apr<br>32.6%</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:88%; background:var(--strider);"></div></div><div class="vbar-x">May<br>34.9%</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:96%; background:var(--strider);"></div></div><div class="vbar-x">Jun<br>37.9%</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:100%; background:var(--strider);"></div></div><div class="vbar-x">Aug<br>40.7%</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Interactions by Message Type</h3>
+            <div class="mini-list">
+              <div class="row"><span>AI Response</span><span class="v">7,781,432</span></div>
+              <div class="row"><span>Question</span><span class="v">5,129,708</span></div>
+              <div class="row"><span>Reactions</span><span class="v">47,582</span></div>
+              <div class="row"><span>Error</span><span class="v">66,820</span></div>
+              <div class="row"><span>Total</span><span class="v">13,032,818</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Adoption by Leader</h3>
+            <table>
+              <tr><th>Leader</th><th class="num">Workforce</th><th class="num">Strider Users</th><th class="num">Adoption</th></tr>
+              <tr><td>Leader A</td><td class="num">22,853</td><td class="num">9,347</td><td class="num">40.9%</td></tr>
+              <tr><td>Leader B</td><td class="num">16,299</td><td class="num">5,091</td><td class="num">31.2%</td></tr>
+              <tr><td>Leader C</td><td class="num">6,961</td><td class="num">4,931</td><td class="num">70.8%</td></tr>
+              <tr class="total"><td>Total</td><td class="num">109,367</td><td class="num">44,485</td><td class="num">40.7%</td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Adoption by Department</h3>
+            <table>
+              <tr><th>Dept</th><th class="num">AI Users</th><th class="num">Adoption</th></tr>
+              <tr><td>Network Engineering</td><td class="num">6</td><td class="num">100.0%</td></tr>
+              <tr><td>Compute Infrastructure</td><td class="num">46</td><td class="num">100.0%</td></tr>
+              <tr><td>Care Coordination</td><td class="num">11</td><td class="num">100.0%</td></tr>
+              <tr class="total"><td>Total</td><td class="num">44,542</td><td class="num">40.7%</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ COPILOT ============ -->
+      <div class="page" id="page-copilot">
+        <h1 class="page-title"><span class="tool-badge" style="background:var(--copilot)">M</span>M365 Copilot Usage Report</h1>
+        <p class="page-sub">Feb 19 – Aug 18, 2026</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">UserType</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Worker Type</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 6 Months</div>
+        </div>
+
+        <div class="subtabs">
+          <div class="subtab active">Overview</div>
+          <div class="subtab">APP-wise stats</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--copilot)"><div class="label">Workforce #</div><div class="value">109.46K</div><div class="delta flat">Eligible</div></div>
+          <div class="kpi" style="--accent:var(--copilot)"><div class="label">Active AI Users #</div><div class="value">38.603K</div><div class="delta up">▲ 35.27%</div></div>
+          <div class="kpi" style="--accent:var(--copilot)"><div class="label">Adoption %ge</div><div class="value">35.27</div><div class="delta flat">Enterprise</div></div>
+          <div class="kpi" style="--accent:var(--copilot)"><div class="label">Premium Licensed #</div><div class="value">4,068</div><div class="delta flat">Licensed</div></div>
+          <div class="kpi" style="--accent:var(--copilot)"><div class="label">Prompts Submitted #</div><div class="value">14,292K</div><div class="delta flat">6 months</div></div>
+          <div class="stat-card" style="--accent2:var(--copilot)"><div class="label">Power Users %</div><div class="value">27.76</div></div>
+          <div class="stat-card" style="--accent2:var(--amber)"><div class="label">Moderate Users %</div><div class="value">7.11</div></div>
+          <div class="stat-card" style="--accent2:var(--text-soft)"><div class="label">Casual Users %</div><div class="value">65.13</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Interactions by Active Users</h3>
+            <p class="cap">Count of users vs total interactions, weekly</p>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="var(--copilot)" stroke-width="2.2" points="0,70 30,55 60,60 90,40 120,52 150,30 180,35 210,15 240,45 270,20 300,12" />
+              <polyline fill="none" stroke="#DAD3F5" stroke-width="2.2" points="0,80 30,72 60,74 90,55 120,68 150,50 180,60 210,42 240,66 270,45 300,30" />
+            </svg>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--copilot)"></i>Count of UserId</span><span><i class="ln" style="background:#DAD3F5"></i>Total Interactions</span></div>
+          </div>
+          <div class="card">
+            <h3>Users Split by Type</h3>
+            <div class="donut-wrap">
+              <svg width="120" height="120" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#EEF0F3" stroke-width="6"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--copilot)" stroke-width="6" stroke-dasharray="11.1 88.9" stroke-dashoffset="25" transform="rotate(-90 21 21)"></circle>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item"><span class="sw" style="background:var(--copilot)"></span>Premium <span class="val">11.1%</span></div>
+                <div class="legend-item"><span class="sw" style="background:#DAD3F5"></span>Regular <span class="val">88.9%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Total Interactions by UserType</h3>
+            <p class="cap">Monthly, Feb – Aug 2026</p>
+            <div class="vbar-wrap">
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:12%; background:var(--copilot);"></div></div><div class="vbar-x">Feb</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:38%; background:var(--copilot);"></div></div><div class="vbar-x">Mar</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:41%; background:var(--copilot);"></div></div><div class="vbar-x">Apr</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:42%; background:var(--copilot);"></div></div><div class="vbar-x">May</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:72%; background:var(--copilot);"></div></div><div class="vbar-x">Jun</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:100%; background:var(--copilot);"></div></div><div class="vbar-x">Jul</div></div>
+              <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:48%; background:var(--copilot);"></div></div><div class="vbar-x">Aug</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Adoption by Department</h3>
+            <table>
+              <tr><th>Dept</th><th class="num">Users</th><th class="num">Prompts</th></tr>
+              <tr><td>Retail Contact Ctr</td><td class="num">1,910</td><td class="num">517,058</td></tr>
+              <tr><td>Inpatient UM</td><td class="num">340</td><td class="num">490,645</td></tr>
+              <tr><td>Medicare Resolution</td><td class="num">295</td><td class="num">465,822</td></tr>
+              <tr class="total"><td>Total</td><td class="num">36,514</td><td class="num">18,925,369</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Adoption by Leader</h3>
+          <table>
+            <tr><th>Leader</th><th class="num">Workforce</th><th class="num">Regular</th><th class="num">Premium</th></tr>
+            <tr><td>Leader F</td><td class="num">22,853</td><td class="num">6,084</td><td class="num">800</td></tr>
+            <tr><td>Leader G</td><td class="num">16,299</td><td class="num">3,209</td><td class="num">12</td></tr>
+            <tr class="total"><td>Total</td><td class="num">109,460</td><td class="num">32,446</td><td class="num">4,068</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ CLAUDE ============ -->
+      <div class="page" id="page-claude">
+        <h1 class="page-title"><span class="tool-badge" style="background:var(--claude)">C</span>Claude Usage Report — Tech</h1>
+        <p class="page-sub">Feb 19 – Aug 18, 2026</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Claude Model</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 6 Months</div>
+        </div>
+
+        <div class="subtabs-row">
+          <div class="subtabs">
+            <div class="subtab active">Overview</div>
+            <div class="subtab">Model Usage</div>
+            <div class="subtab">Monthly Limits</div>
+            <div class="subtab">Export View</div>
+          </div>
+          <div class="segmented">
+            <div class="seg">Last 7 Days</div>
+            <div class="seg">MTD</div>
+            <div class="seg active">YTD</div>
+          </div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Total Spend $</div><div class="value">$642.86K</div><div class="delta flat">YTD</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Active Users</div><div class="value">2,466</div><div class="delta up">▲ of 4,359 licensed</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Licensed Users</div><div class="value">4,359</div><div class="delta flat">Total seats</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Count of Date</div><div class="value">122</div><div class="delta flat">Active days</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Count of Model</div><div class="value">13</div><div class="delta flat">Models in use</div></div>
+          <div class="kpi" style="--accent:var(--claude)"><div class="label">Prompts #</div><div class="value">4,425K</div><div class="delta flat">YTD</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Spend by Model</h3>
+            <p class="cap">Shades of the Claude hue only — never a competing palette</p>
+            <div class="donut-wrap">
+              <svg width="130" height="130" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#EEF0F3" stroke-width="6"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#C1602E" stroke-width="6" stroke-dasharray="87.1 12.9" stroke-dashoffset="25" transform="rotate(-90 21 21)"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#E0A672" stroke-width="6" stroke-dasharray="12.4 87.6" stroke-dashoffset="-63.87" transform="rotate(-90 21 21)"></circle>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item"><span class="sw" style="background:#C1602E"></span>Sonnet <span class="val">87.1%</span></div>
+                <div class="legend-item"><span class="sw" style="background:#E0A672"></span>Haiku <span class="val">12.4%</span></div>
+                <div class="legend-item"><span class="sw" style="background:#8C4520"></span>Opus <span class="val">0.5%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Spend Trend</h3>
+            <p class="cap">Weekly spend, Feb – Aug 2026</p>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="#C1602E" stroke-width="2.5" points="0,88 30,80 60,74 90,60 120,55 150,44 180,30 210,20 240,14 270,9 300,4" />
+              <polyline fill="url(#g1)" stroke="none" points="0,88 30,80 60,74 90,60 120,55 150,44 180,30 210,20 240,14 270,9 300,4 300,100 0,100" />
+              <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C1602E" stop-opacity="0.18"/><stop offset="100%" stop-color="#C1602E" stop-opacity="0"/></linearGradient></defs>
+            </svg>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Users, Prompts &amp; Tokens by Week</h3>
+            <p class="cap">Bars = tokens (B) · line = spend</p>
+            <div style="position:relative; height:120px;">
+              <div class="vbar-wrap" style="height:100px;">
+                <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:20%; background:#EAC4AC; width:18px;"></div></div><div class="vbar-x">Apr</div></div>
+                <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:34%; background:#EAC4AC; width:18px;"></div></div><div class="vbar-x">May</div></div>
+                <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:58%; background:#EAC4AC; width:18px;"></div></div><div class="vbar-x">Jun</div></div>
+                <div class="vbar-group"><div class="vbar-cols"><div class="vbar" style="height:100%; background:#EAC4AC; width:18px;"></div></div><div class="vbar-x">Jul</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Usage by Department</h3>
+            <table>
+              <tr><th>Department</th><th class="num">Tokens</th><th class="num">Spend</th></tr>
+              <tr><td>Enterprise AI</td><td class="num">32,142M</td><td class="num">$56,118</td></tr>
+              <tr><td>Digital Platforms</td><td class="num">22,796M</td><td class="num">$38,400</td></tr>
+              <tr><td>Tech Products</td><td class="num">19,247M</td><td class="num">$39,032</td></tr>
+              <tr class="total"><td>Total</td><td class="num">351,822M</td><td class="num">$642,861</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Usage by Leader</h3>
+          <table>
+            <tr><th>Leader</th><th class="num">Licensed</th><th class="num">Active</th><th class="num">Adoption</th><th>Trend</th></tr>
+            <tr><td>Leader F</td><td class="num">1,217</td><td class="num">657</td><td class="num">54.0%</td><td><span class="bar-mini" style="width:54px; background:var(--claude)"></span></td></tr>
+            <tr><td>Leader G</td><td class="num">555</td><td class="num">353</td><td class="num">63.6%</td><td><span class="bar-mini" style="width:64px; background:var(--claude)"></span></td></tr>
+            <tr><td>Leader H</td><td class="num">208</td><td class="num">178</td><td class="num">85.6%</td><td><span class="bar-mini" style="width:86px; background:var(--claude)"></span></td></tr>
+            <tr class="total"><td>Total</td><td class="num">4,359</td><td class="num">2,466</td><td class="num">56.6%</td><td></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ GITHUB COPILOT ============ -->
+      <div class="page" id="page-github">
+        <h1 class="page-title"><span class="tool-badge" style="background:var(--ghcopilot)">G</span>GitHub Copilot Usage Report — IT</h1>
+        <p class="page-sub">Last 3 months · 5/19/2026 – 8/18/2026</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Worker Type</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 3 Months</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--ghcopilot)"><div class="label">Licensed Users #</div><div class="value">221</div><div class="delta flat">Seats</div></div>
+          <div class="kpi" style="--accent:var(--ghcopilot)"><div class="label">Total Active Users #</div><div class="value">151</div><div class="delta up">▲ 68.3% adoption</div></div>
+          <div class="kpi" style="--accent:var(--ghcopilot)"><div class="label">Acceptance Rate %</div><div class="value">11.72</div><div class="delta flat">Suggestions kept</div></div>
+          <div class="kpi" style="--accent:var(--ghcopilot)"><div class="label">Total Prompts</div><div class="value">46K</div><div class="delta flat">3 months</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Lines of Code: Added vs Suggested</h3>
+            <p class="cap">By month</p>
+            <div style="display:flex; align-items:flex-end; gap:24px; height:110px; padding-top:10px;">
+              <div style="display:flex; gap:5px; align-items:flex-end;"><div style="width:20px; height:40%; background:var(--ghcopilot); border-radius:3px 3px 0 0;"></div><div style="width:20px; height:32%; background:#8B96A3; border-radius:3px 3px 0 0;"></div></div>
+              <div style="display:flex; gap:5px; align-items:flex-end;"><div style="width:20px; height:95%; background:var(--ghcopilot); border-radius:3px 3px 0 0;"></div><div style="width:20px; height:78%; background:#8B96A3; border-radius:3px 3px 0 0;"></div></div>
+              <div style="display:flex; gap:5px; align-items:flex-end;"><div style="width:20px; height:65%; background:var(--ghcopilot); border-radius:3px 3px 0 0;"></div><div style="width:20px; height:70%; background:#8B96A3; border-radius:3px 3px 0 0;"></div></div>
+            </div>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--ghcopilot)"></i>LOC Added</span><span><i class="ln" style="background:#8B96A3"></i>LOC Suggested</span></div>
+          </div>
+          <div class="card">
+            <h3>Interactions by Active Users</h3>
+            <p class="cap">Users vs total prompts, weekly</p>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="var(--ghcopilot)" stroke-width="2.2" points="0,60 40,20 80,55 120,15 160,50 200,10 240,45 300,5" />
+              <polyline fill="none" stroke="#B9C1CA" stroke-width="2.2" points="0,80 40,60 80,75 120,55 160,70 200,50 240,68 300,30" />
+            </svg>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--ghcopilot)"></i>Users</span><span><i class="ln" style="background:#B9C1CA"></i>Total Prompts</span></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Suggestions: Accepted vs Suggested</h3>
+            <div class="donut-wrap">
+              <svg width="120" height="120" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#EEF0F3" stroke-width="6"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--ghcopilot)" stroke-width="6" stroke-dasharray="14 86" stroke-dashoffset="25" transform="rotate(-90 21 21)"></circle>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item"><span class="sw" style="background:var(--ghcopilot)"></span>Accepted <span class="val">14%</span></div>
+                <div class="legend-item"><span class="sw" style="background:#D8DCE1"></span>Suggested <span class="val">86%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Usage by Department</h3>
+            <table>
+              <tr><th>Dept</th><th class="num">Users</th><th class="num">Prompts</th></tr>
+              <tr><td>Engineering &amp; AI Enablement</td><td class="num">33</td><td class="num">9,123</td></tr>
+              <tr><td>Enterprise AI</td><td class="num">27</td><td class="num">4,715</td></tr>
+              <tr class="total"><td>Total</td><td class="num">151</td><td class="num">45,870</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Adoption by Leader</h3>
+          <table>
+            <tr><th>Leader</th><th class="num">Licensed</th><th class="num">Active</th><th class="num">LOC Added</th><th class="num">Acceptance</th></tr>
+            <tr><td>Leader B</td><td class="num">56</td><td class="num">47</td><td class="num">196K</td><td class="num">13.5%</td></tr>
+            <tr><td>Leader C</td><td class="num">74</td><td class="num">56</td><td class="num">87K</td><td class="num">10.8%</td></tr>
+            <tr class="total"><td>Total</td><td class="num">221</td><td class="num">151</td><td class="num">433K</td><td class="num">11.7%</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ============ WINDSURF ============ -->
+      <div class="page" id="page-windsurf">
+        <h1 class="page-title"><span class="tool-badge" style="background:var(--windsurf)">W</span>Windsurf Usage Report — IT</h1>
+        <p class="page-sub">Last month</p>
+
+        <div class="filter-toolbar">
+          <div class="filter-item"><div class="fl-label">SVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">VP / AVP</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">AVP / Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Director / Asc Director</div><div class="fl-value">All</div></div>
+          <div class="filter-item"><div class="fl-label">Vendor</div><div class="fl-value">All</div></div>
+          <div class="time-pill"><span class="tp-dot"></span>Last 1 · Select</div>
+        </div>
+
+        <div class="kpi-strip">
+          <div class="kpi" style="--accent:var(--windsurf)"><div class="label">Codegen Licenses #</div><div class="value">3.952K</div><div class="delta flat">Seats</div></div>
+          <div class="kpi" style="--accent:var(--windsurf)"><div class="label">Active Users #</div><div class="value">3.257K</div><div class="delta up">▲ 82.4% adoption</div></div>
+          <div class="kpi" style="--accent:var(--windsurf)"><div class="label">Codegen Generated %</div><div class="value">48.70</div><div class="delta flat">Of total code</div></div>
+          <div class="kpi" style="--accent:var(--windsurf)"><div class="label">Sum of Total Bytes</div><div class="value">82.03M</div><div class="delta flat">Code written</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>% CodeGen Generated — Week over Week</h3>
+            <svg class="trend-svg" viewBox="0 0 300 100" preserveAspectRatio="none">
+              <polyline fill="none" stroke="var(--windsurf)" stroke-width="2.5" points="0,80 60,55 120,20 180,45 240,25" />
+            </svg>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--windsurf)"></i>46.2% → 47.8%</span></div>
+          </div>
+          <div class="card">
+            <h3>Total Code Bytes</h3>
+            <div class="donut-wrap">
+              <svg width="120" height="120" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#EEF0F3" stroke-width="6"></circle>
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="var(--windsurf)" stroke-width="6" stroke-dasharray="48.7 51.3" stroke-dashoffset="25" transform="rotate(-90 21 21)"></circle>
+              </svg>
+              <div class="legend-list">
+                <div class="legend-item"><span class="sw" style="background:var(--windsurf)"></span>CodeGen <span class="val">39.95M</span></div>
+                <div class="legend-item"><span class="sw" style="background:#B9E4EC"></span>Written <span class="val">82.03M</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>CodeGen Developer Statistics</h3>
+            <p class="cap">Sample of licensed users</p>
+            <table>
+              <tr><th>Employee</th><th class="num">CodeGen (bytes)</th><th class="num">Written (bytes)</th><th class="num">Codeium %</th></tr>
+              <tr><td>Employee D1</td><td class="num">972</td><td class="num">2,556</td><td class="num">38.0%</td></tr>
+              <tr><td>Employee D2</td><td class="num">909</td><td class="num">3,454</td><td class="num">26.3%</td></tr>
+              <tr><td>Employee D3</td><td class="num">1,251</td><td class="num">2,515</td><td class="num">49.7%</td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <h3>Inactive Licensed Users</h3>
+            <p class="cap">Sample</p>
+            <div class="mini-list">
+              <div class="row"><span>Employee I1</span></div>
+              <div class="row"><span>Employee I2</span></div>
+              <div class="row"><span>Employee I3</span></div>
+              <div class="row"><span>Employee I4</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Adoption by Leader</h3>
+          <table>
+            <tr><th>Leader</th><th class="num">Licensed</th><th class="num">Active</th><th class="num">Codeium %</th></tr>
+            <tr><td>Leader A</td><td class="num">1,320</td><td class="num">1,000</td><td class="num">47.1%</td></tr>
+            <tr><td>Leader D</td><td class="num">481</td><td class="num">467</td><td class="num">51.2%</td></tr>
+            <tr class="total"><td>Total</td><td class="num">3,952</td><td class="num">3,257</td><td class="num">48.7%</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const titles = {
+  summary:"Summary", detailed:"Detailed View", strider:"Strider", copilot:"M365 Copilot",
+  claude:"Claude", github:"GitHub Copilot", windsurf:"Windsurf"
+};
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.rail-item').forEach(r=>r.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('crumb').innerHTML = titles[id] + ' <span style="opacity:.5">/</span> <b>All Orgs · Last 6 Months</b>';
+}
+</script>
+</body>
+</html>
